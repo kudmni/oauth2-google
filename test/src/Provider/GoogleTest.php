@@ -112,7 +112,6 @@ class GoogleTest extends \PHPUnit_Framework_TestCase
 
     public function testUserData()
     {
-        $response = json_decode('{"emails": [{"value": "mock_email"}],"id": "12345","displayName": "mock_name","name": {"familyName": "mock_last_name","givenName": "mock_first_name"},"image": {"url": "mock_image_url"}}', true);
 
         $provider = m::mock('League\OAuth2\Client\Provider\Google[fetchResourceOwnerDetails]')
             ->shouldAllowMockingProtectedMethods();
@@ -132,6 +131,7 @@ class GoogleTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('mock_last_name', $user->getLastName());
         $this->assertEquals('mock_email', $user->getEmail());
         $this->assertEquals('mock_image_url', $user->getAvatar());
+        $this->assertEquals('male', $user->getGender());
 
         $user = $user->toArray();
 
@@ -140,6 +140,7 @@ class GoogleTest extends \PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('emails', $user);
         $this->assertArrayHasKey('image', $user);
         $this->assertArrayHasKey('name', $user);
+        $this->assertArrayHasKey('gender', $user);
     }
 
     /**
