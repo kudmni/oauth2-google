@@ -77,6 +77,16 @@ class GoogleUser implements ResourceOwnerInterface
     }
 
     /**
+     * Get perferred gender.
+     *
+     * @return string
+     */
+    public function getGender()
+    {
+        return $this->response['gender'];
+    }
+
+    /**
      * Get user data as an array.
      *
      * @return array
