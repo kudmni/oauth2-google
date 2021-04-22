@@ -3,6 +3,7 @@ composer.lock
 composer.phar
 .DS_Store
 testing/
-nbproject/private/
+.idea/
 test/log
 build
+phpunit.xml

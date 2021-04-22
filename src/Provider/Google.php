@@ -25,24 +25,6 @@ class Google extends AbstractProvider
      */
     protected $hostedDomain;
 
-    /**
-     * @var array Default fields to be requested from the user profile.
-     * @link https://developers.google.com/+/web/api/rest/latest/people
-     */
-    protected $defaultUserFields = [
-        'id',
-        'name(familyName,givenName)',
-        'displayName',
-        'emails/value',
-        'image/url',
-        'gender',
-    ];
-    /**
-     * @var array Additional fields to be requested from the user profile.
-     *            If set, these values will be included with the defaults.
-     */
-    protected $userFields = [];
-
     public function getBaseAuthorizationUrl()
     {
         return 'https://accounts.google.com/o/oauth2/auth';
@@ -55,11 +37,7 @@ class Google extends AbstractProvider
 
     public function getResourceOwnerDetailsUrl(AccessToken $token)
     {
-        $fields = array_merge($this->defaultUserFields, $this->userFields);
-        return 'https://www.googleapis.com/plus/v1/people/me?' . http_build_query([
-            'fields' => implode(',', $fields),
-            'alt'    => 'json',
-        ]);
+        return 'https://www.googleapis.com/oauth2/v3/userinfo?' . http_build_query(['prettyPrint' => 'false']);
     }
 
     protected function getAuthorizationParameters(array $options)

@@ -3,7 +3,6 @@
 namespace League\OAuth2\Client\Test\Provider;
 
 use League\OAuth2\Client\Provider\Google as GoogleProvider;
-
 use Mockery as m;
 
 class GoogleTest extends \PHPUnit_Framework_TestCase
@@ -67,7 +66,7 @@ class GoogleTest extends \PHPUnit_Framework_TestCase
         $url = $this->provider->getResourceOwnerDetailsUrl($token);
         $uri = parse_url($url);
 
-        $this->assertEquals('/plus/v1/people/me', $uri['path']);
+        $this->assertEquals('/oauth2/v3/userinfo', $uri['path']);
         $this->assertNotContains('mock_access_token', $url);
 
     }
@@ -78,11 +77,6 @@ class GoogleTest extends \PHPUnit_Framework_TestCase
             'clientId' => 'mock_client_id',
             'clientSecret' => 'mock_secret',
             'redirectUri' => 'none',
-            'userFields' => [
-                'domain',
-                'gender',
-                'verified',
-            ],
         ]);
 
         $token = m::mock('League\OAuth2\Client\Token\AccessToken', [['access_token' => 'mock_access_token']]);
@@ -91,27 +85,23 @@ class GoogleTest extends \PHPUnit_Framework_TestCase
         $uri = parse_url($url);
         parse_str($uri['query'], $query);
 
-        $this->assertArrayHasKey('fields', $query);
-        $this->assertArrayHasKey('alt', $query);
-
-        // Always JSON for consistency
-        $this->assertEquals('json', $query['alt']);
-
-        $fields = explode(',', $query['fields']);
-
-        // Default values
-        $this->assertContains('displayName', $fields);
-        $this->assertContains('emails/value', $fields);
-        $this->assertContains('image/url', $fields);
-
-        // Configured values
-        $this->assertContains('domain', $fields);
-        $this->assertContains('gender', $fields);
-        $this->assertContains('verified', $fields);
+        $this->assertArrayHasKey('prettyPrint', $query);
+        $this->assertEquals('false', $query['prettyPrint']);
     }
 
     public function testUserData()
     {
+        $response = [
+            'sub'            => '12345',
+            'name'           => 'mock_name',
+            'given_name'     => 'mock_first_name',
+            'family_name'    => 'mock_last_name',
+            'picture'        => 'mock_image_url',
+            'email'          => 'mock_email',
+            'email_verified' => true,
+            'locale'         => 'en',
+            'hd'             => 'example.com'
+        ];
 
         $provider = m::mock('League\OAuth2\Client\Provider\Google[fetchResourceOwnerDetails]')
             ->shouldAllowMockingProtectedMethods();
@@ -131,16 +121,16 @@ class GoogleTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('mock_last_name', $user->getLastName());
         $this->assertEquals('mock_email', $user->getEmail());
         $this->assertEquals('mock_image_url', $user->getAvatar());
-        $this->assertEquals('male', $user->getGender());
+        $this->assertEmpty($user->getGender());
 
         $user = $user->toArray();
 
-        $this->assertArrayHasKey('id', $user);
-        $this->assertArrayHasKey('displayName', $user);
-        $this->assertArrayHasKey('emails', $user);
-        $this->assertArrayHasKey('image', $user);
+        $this->assertArrayHasKey('sub', $user);
         $this->assertArrayHasKey('name', $user);
-        $this->assertArrayHasKey('gender', $user);
+        $this->assertArrayHasKey('email', $user);
+        $this->assertArrayHasKey('picture', $user);
+        $this->assertArrayHasKey('given_name', $user);
+        $this->assertArrayHasKey('family_name', $user);
     }
 
     /**

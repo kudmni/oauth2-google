@@ -19,7 +19,7 @@ class GoogleUser implements ResourceOwnerInterface
 
     public function getId()
     {
-        return $this->response['id'];
+        return $this->response['sub'];
     }
 
     /**
@@ -29,7 +29,7 @@ class GoogleUser implements ResourceOwnerInterface
      */
     public function getName()
     {
-        return $this->response['displayName'];
+        return $this->response['name'];
     }
 
     /**
@@ -39,7 +39,7 @@ class GoogleUser implements ResourceOwnerInterface
      */
     public function getFirstName()
     {
-        return $this->response['name']['givenName'];
+        return $this->getResponseValue('given_name');
     }
 
     /**
@@ -49,7 +49,7 @@ class GoogleUser implements ResourceOwnerInterface
      */
     public function getLastName()
     {
-        return $this->response['name']['familyName'];
+        return $this->getResponseValue('family_name');
     }
 
     /**
@@ -59,9 +59,7 @@ class GoogleUser implements ResourceOwnerInterface
      */
     public function getEmail()
     {
-        if (!empty($this->response['emails'])) {
-            return $this->response['emails'][0]['value'];
-        }
+        return $this->getResponseValue('email');
     }
 
     /**
@@ -71,9 +69,7 @@ class GoogleUser implements ResourceOwnerInterface
      */
     public function getAvatar()
     {
-        if (!empty($this->response['image']['url'])) {
-            return $this->response['image']['url'];
-        }
+        return $this->getResponseValue('picture');
     }
 
     /**
@@ -83,7 +79,7 @@ class GoogleUser implements ResourceOwnerInterface
      */
     public function getGender()
     {
-        return $this->response['gender'];
+        return $this->getResponseValue('gender');
     }
 
     /**
@@ -94,5 +90,10 @@ class GoogleUser implements ResourceOwnerInterface
     public function toArray()
     {
         return $this->response;
+    }
+
+    private function getResponseValue($key)
+    {
+        return isset($this->response[$key]) ? $this->response[$key] : null;
     }
 }
